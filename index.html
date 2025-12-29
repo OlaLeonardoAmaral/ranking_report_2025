@@ -214,7 +214,8 @@
             <h2 class="text-3xl md:text-4xl text-white">DONO DO JOGO</h2>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="owners-grid">
+        <!-- Adicionado 'items-start' para corrigir a altura dos cards adjacentes -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start" id="owners-grid">
             <!-- Cards serão gerados via JS -->
         </div>
     </section>
@@ -250,7 +251,7 @@
 
     <!-- SCRIPT LÓGICA -->
     <script>
-        // DADOS
+        // DADOS DE JOGOS
         const topGames = [
             { name: "Trio", count: 207 }, { name: "UNO Flip", count: 48 }, { name: "Cabanga", count: 44 },
             { name: "Bloqueio", count: 26 }, { name: "Battle Of Legends", count: 23 }, { name: "Flip 7", count: 19 },
@@ -261,29 +262,45 @@
             { name: "Dobro", count: 6 }, { name: "Mascareds", count: 1 }, { name: "Aposta", count: 1 }
         ];
 
+        // DADOS DE DONOS DO JOGO
         const gameOwners = [
-            { game: "Hive pocket", owner: "Léo", wins: 2 },
-            { game: "Trio", owner: "Nanna", wins: 68 },
-            { game: "Bloqueio", owner: "Nanna", wins: 10 },
-            { game: "Animix", owner: "Nanna", wins: 7 },
-            { game: "Skull", owner: "Léo", wins: 4 },
-            // { game: "Eternity", owner: "Brenno", wins: 1 },
-            { game: "Banana", owner: "Nanna", wins: 5 },
-            // { game: "Dobro", owner: "Brenno", wins: 1 },
-            { game: "Cabanga", owner: "Nanna", wins: 14 },
-            { game: "Ritus", owner: "Nanna", wins: 3 },
-            { game: "3 Capítulos", owner: "Léo", wins: 3 },
-            { game: "Spots", owner: "Nanna", wins: 3 },
-            { game: "Tatsu", owner: "Brenno", wins: 2 },
-            // { game: "Battle Of Legends", owner: "Léo", wins: 8 },
-            { game: "Rebel Princess", owner: "Brenno", wins: 2 },
-            { game: "Mascareds", owner: "Nanna", wins: 1 },
-            { game: "Perfil", owner: "Alice", wins: 6 },
-            { game: "UNO Flip", owner: "Nanna", wins: 16 },
-            { game: "Aposta", owner: "Léo", wins: 1 },
-            { game: "Flip 7", owner: "Léo", wins: 6 },
-            { game: "Spicy", owner: "Brenno", wins: 4 }
+            { game: "Hive pocket", owners: [{name: "Léo", count: 2}] },
+            { game: "Trio", owners: [{name: "Nanna", count: 68}] },
+            { game: "Bloqueio", owners: [{name: "Nanna", count: 10}] },
+            { game: "Animix", owners: [{name: "Nanna", count: 7}] },
+            { game: "Skull", owners: [{name: "Léo", count: 4}, {name: "Nanna", count: 4}, {name: "Brenno", count: 4}] },
+            // { game: "Eternity (Dragão)", owners: [{name: "Brenno", count: 1}] },
+            { game: "Banana", owners: [{name: "Nanna", count: 5}] },
+            // { game: "Dobro", owners: [{name: "Brenno", count: 1}] },
+            { game: "Cabanga", owners: [{name: "Nanna", count: 14}] },
+            { game: "Ritus", owners: [{name: "Nanna", count: 3}] },
+            { game: "3 Capítulos", owners: [{name: "Léo", count: 3}, {name: "Brenno", count: 3}] },
+            { game: "Spots", owners: [{name: "Nanna", count: 3}] },
+            { game: "Tatsu", owners: [{name: "Brenno", count: 2}] },
+            // { game: "Battle Of Legends", owners: [{name: "Léo", count: 8}] },
+            { game: "Rebel Princess", owners: [{name: "Brenno", count: 2}] },
+            { game: "Mascareds", owners: [{name: "Nanna", count: 1}] },
+            { game: "Perfil", owners: [{name: "Alice", count: 6}] },
+            { game: "UNO Flip", owners: [{name: "Nanna", count: 16}] },
+            { game: "Aposta", owners: [{name: "Léo", count: 1}] },
+            { game: "Flip 7", owners: [{name: "Léo", count: 6}] },
+            { game: "Spicy", owners: [{name: "Brenno", count: 4}] }
         ];
+
+        // Cores dos jogadores
+        const playerColors = {
+            'Nanna': '#fef08a', // yellow-200
+            'Léo': '#bfdbfe',   // blue-200
+            'Brenno': '#fecaca',// red-200
+            'Alice': '#e9d5ff', // purple-200
+            'Vera': '#bbf7d0',  // green-200
+            'teste 1': '#e5e7eb', // gray-200
+            'default': '#ffffff'
+        };
+
+        function getPlayerColor(name) {
+            return playerColors[name] || playerColors['default'];
+        }
 
         // RENDERIZAR GRÁFICO DE JOGOS (BARRA)
         const ctxGames = document.getElementById('gamesChart').getContext('2d');
@@ -339,21 +356,57 @@
         const ownersContainer = document.getElementById('owners-grid');
         gameOwners.forEach(item => {
             const card = document.createElement('div');
-            // Classes dinâmicas baseadas no dono para dar cor variada
-            let accentColor = 'bg-white';
-            if(item.owner === 'Nanna') accentColor = 'bg-yellow-200';
-            if(item.owner === 'Léo') accentColor = 'bg-blue-200';
-            if(item.owner === 'Brenno') accentColor = 'bg-red-200';
-
-            card.className = `border-4 border-black p-4 shadow-[4px_4px_0px_0px_#000] hover:translate-y-1 hover:shadow-none transition-all ${accentColor} text-black`;
-            card.innerHTML = `
-                <div class="text-xs uppercase font-bold tracking-widest text-gray-600 mb-1">Jogo</div>
-                <div class="text-lg font-black leading-tight mb-3">${item.game}</div>
-                <div class="flex justify-between items-end border-t-2 border-black pt-2">
-                    <div class="font-bold">${item.owner}</div>
-                    <div class="text-sm bg-black text-white px-2 py-0.5 rounded-none font-mono">${item.wins} wins</div>
+            
+            const isSingle = item.owners.length === 1;
+            
+            // Fundo: Se for 1 ganhador, usa a cor dele. Se forem vários, usa um cinza "concreto" para o título.
+            let cardBg = '';
+            if (isSingle) {
+                cardBg = getPlayerColor(item.owners[0].name);
+            } else {
+                cardBg = '#d4d4d8'; // Cinza concreto (zinc-300) em vez de branco
+            }
+            
+            card.className = `border-4 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-y-1 hover:shadow-none transition-all text-black flex flex-col h-fit`;
+            card.style.backgroundColor = cardBg;
+            
+            // Título do jogo
+            let contentHtml = `
+                <div class="p-4 pb-2">
+                    <div class="text-xs uppercase font-bold tracking-widest text-gray-700 mb-1 opacity-70">Jogo</div>
+                    <div class="text-lg font-black leading-tight">${item.game}</div>
                 </div>
             `;
+
+            // Área de donos
+            let ownersHtml = '';
+            
+            if (isSingle) {
+                // Se for único, a estrutura é simples dentro do card colorido
+                ownersHtml = `
+                    <div class="p-4 pt-0 mt-auto">
+                        <div class="flex justify-between items-end border-t-2 border-black pt-2">
+                            <span class="font-bold">${item.owners[0].name}</span>
+                            <span class="text-xs font-mono font-bold border border-black px-1 bg-white/50">${item.owners[0].count} wins</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Se for múltiplo, empilha os blocos
+                ownersHtml = '<div class="mt-2 flex-grow flex flex-col justify-end">';
+                item.owners.forEach(owner => {
+                    const color = getPlayerColor(owner.name);
+                    ownersHtml += `
+                        <div class="flex justify-between items-center p-2 px-4 border-t-2 border-black" style="background-color: ${color}">
+                            <span class="font-bold">${owner.name}</span>
+                            <span class="text-xs font-mono font-bold border border-black px-1 bg-white/50">${owner.count} wins</span>
+                        </div>
+                    `;
+                });
+                ownersHtml += '</div>';
+            }
+
+            card.innerHTML = contentHtml + ownersHtml;
             ownersContainer.appendChild(card);
         });
 
